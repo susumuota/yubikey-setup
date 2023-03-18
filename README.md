@@ -1,17 +1,28 @@
 # YubiKey setup memo
 
+This document describes how to set up a YubiKey.
+
+- Generate gpg keys
+- Backup the keys
+- Use gpg for SSH
+- Use gpg for signing GitHub commits
+
+## References
+
 - https://support.yubico.com/hc/en-us/articles/360013790259-Using-Your-YubiKey-with-OpenPGP
 - https://github.com/drduh/YubiKey-Guide
 - https://musigma.blog/2021/05/09/gpg-ssh-ed25519.html
 - https://keens.github.io/blog/2021/03/23/yubikeywotsukau_openpghen/
 - https://qiita.com/shun-shobon/items/96f08aa09a30c26a55b5
 
-## Prerequisites
+## Buy a YubiKey.
 
-- YubiKey 5 Series
-- USB drive or SD card for key backup
+- YubiKey 5+ Series which supports OpenPGP.
+- USB drive or SD card for key backup.
 
 ## Install
+
+- For macOS,
 
 ```sh
 brew install gnupg
@@ -20,14 +31,15 @@ brew install ykman
 
 ## Reset
 
+- This commands will reset the YubiKey OpenPGP data (not FIDO2, OTP, PIV, etc.). See details [here](https://docs.yubico.com/software/yubikey/tools/ykman/OpenPGP_Commands.html#ykman-openpgp-reset-options).
 - **ARE YOU SURE YOU WANT TO RESET?**
 
 ```sh
 ykman openpgp reset
-rm -rf ~/.gnupg
+rm -rf ~/.gnupg      # if you already have gpg keys, backup them somewhere
 ```
 
-- default PINs are here. We will change them later.
+- Default PINs are here. We will change them later.
 
 ```sh
 PIN:         123456
@@ -37,9 +49,9 @@ Admin PIN:   12345678
 
 ## Generate a master key and subkeys
 
-- Choose the key algorithm, RSA or ECC. I chose ECC here.
-- If you use RSA, choose 4096 bits. See details [here](https://github.com/drduh/YubiKey-Guide).
-- If you use ECC, I recommend to use Curve 25519. See details [here](https://soatok.blog/2022/05/19/guidance-for-choosing-an-elliptic-curve-signature-algorithm-in-2022/). I chose Curve 25519 here.
+- Choose the key algorithm, RSA or ECC. I chose ECC.
+- If you use RSA, choose 4096 bits. See details [here](https://github.com/drduh/YubiKey-Guide#master-key).
+- If you use ECC, I recommend to use Curve 25519. See details [here](https://soatok.blog/2022/05/19/guidance-for-choosing-an-elliptic-curve-signature-algorithm-in-2022/). I chose Curve 25519.
 - There are 4 types of keys: S, C, E, and A. S is for signing, C is for certification, E is for encryption, and A is for authentication.
 - `gpg` default procedure will generate a master key for S and C, and a subkey for E.
 - We will create a subkey for A later.
@@ -509,8 +521,9 @@ ssh -p 10022 ota@pi3.local -vvv
 
 ## GitHub
 
-- https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification
-- https://github.com/drduh/YubiKey-Guide#github
+- Follow these instructions.
+  - https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification
+  - https://github.com/drduh/YubiKey-Guide#github
 
 - Backup the existing `~/.gitconfig`.
 
@@ -520,15 +533,12 @@ cp -p ~/.gitconfig ~/.gitconfig.bak
 
 - Show public key and paste it to GitHub.
   - https://github.com/settings/gpg/new
-  - https://docs.github.com/en/authentication/managing-commit-signature-verification/checking-for-existing-gpg-keys
-  - https://docs.github.com/en/authentication/managing-commit-signature-verification/adding-a-gpg-key-to-your-github-account
 
 ```sh
 gpg --armor --export $GPG_KEY_ID
 ```
 
-- Telling Git about your signing key
-  - https://docs.github.com/en/authentication/managing-commit-signature-verification/telling-git-about-your-signing-key
+- Unset `gpg.format` if it is set.
 
 ```sh
 git config --global --unset gpg.format
@@ -557,3 +567,16 @@ git push origin main
 - See the commit log on GitHub. You will see green `Verified` badge and click it to confirm `GPG key ID` is same as `$GPG_KEY_ID`.
 
 - You can also try to unplug and plug the YubiKey to test `pinentry`.
+  - You will see `pinentry` dialog when `git commit` and `git push`.
+
+That's all.
+
+## License
+
+MIT
+
+## Author
+
+S. Ota
+
+https://github.com/susumuota/yubikey-setup
