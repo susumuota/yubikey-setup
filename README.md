@@ -6,8 +6,8 @@ This document describes how to set up a YubiKey.
 - Backup the keys
 - Use YubiKey for SSH
 - Use YubiKey for signing GitHub commits
-- Use YubiKey for 2 Factor Authentication (2FA) on (e.g. Google, Amazon, Twitter, etc.) (WIP)
-- Use YubiKey for Passkey Authentication (Yahoo! JAPAN) (WIP)
+- Use YubiKey for two factor authentication (2FA) (e.g. Google, Amazon, Twitter, etc.) (WIP)
+- Use YubiKey for Passkey authentication (WIP)
 - Use YubiKey for Nostr (WIP)
 
 ## References
@@ -204,7 +204,7 @@ Really create? (y/N) y
 gpg> save
 ```
 
-- Confirm the keys
+- Confirm the keys.
 
 ```sh
 gpg -k
@@ -216,7 +216,7 @@ sub   cv25519 2023-03-17 [E]
 sub   ed25519 2023-03-17 [A]
 ```
 
-- Verify the keys
+- Verify the keys.
 
 ```sh
 brew install hopenpgp-tools
@@ -265,7 +265,7 @@ Is this correct? (y/N) y
 gpg> save
 ```
 
-- Confirm the keys
+- Confirm the keys.
 
 ```sh
 gpg -k
@@ -279,7 +279,7 @@ sub   ed25519 2023-03-17 [A] [expires: 2024-03-16]
 
 ## Backup keys
 
-- Follow these instructions to export your secret keys
+- Follow these instructions to export your secret keys.
   - https://github.com/drduh/YubiKey-Guide#export-secret-keys
   - https://keens.github.io/blog/2021/03/23/yubikeywotsukau_openpghen/
 - Prepare a USB drive or a SD card or something to backup the keys.
@@ -309,7 +309,7 @@ gpg --import gpg_public_keys.asc
 gpg -k
 ```
 
-- Create the revocation certificate
+- Create the revocation certificate.
 
 ```sh
 gpg --output gpg_revoke.asc --gen-revoke $GPG_KEY_ID
@@ -352,10 +352,14 @@ gpg --card-edit
 gpg/card> admin
 ```
 
+- Enables YubiKey to store the hash of PIN.
+
 ```sh
 gpg/card> kdf-setup
 gpg/card> list       # KDF setting ......: on
 ```
+
+- Change PIN.
 
 ```sh
 gpg/card> passwd
@@ -384,6 +388,10 @@ gpg/card> login
 gpg/card> list
 gpg/card> quit
 ```
+
+## Transfer keys to YubiKey
+
+> **Note**: Transferring keys to YubiKey using keytocard is a destructive, one-way operation only. Make sure you have a backup of your keys before proceeding.
 
 ```sh
 gpg --edit-key $GPG_KEY_ID
@@ -415,7 +423,7 @@ Your selection? 3
 gpg> save
 ```
 
-- Confirm the keys
+- Confirm the keys.
 
 ```sh
 gpg --card-edit
@@ -470,13 +478,31 @@ sudo umount workspace
 - Create `gpg-agent.conf`.
 
 ```sh
-brew install pinentry-mac
+brew install pinentry-mac  # for macOS
 rehash
 which pinentry-mac  # /usr/local/bin/pinentry-mac
 cd ~/.gnupg
 wget https://raw.githubusercontent.com/drduh/config/master/gpg-agent.conf
 # edit gpg-agent.conf, comment out default pinentry-program and enable pinentry-mac
 # pinentry-program /usr/local/bin/pinentry-mac
+```
+
+- `~/.gnupg/gpg-agent.conf`
+
+```sh
+# https://github.com/drduh/config/blob/master/gpg-agent.conf
+# https://www.gnupg.org/documentation/manuals/gnupg/Agent-Options.html
+enable-ssh-support
+ttyname $GPG_TTY
+default-cache-ttl 60
+max-cache-ttl 120
+#pinentry-program /usr/bin/pinentry-curses
+#pinentry-program /usr/bin/pinentry-tty
+#pinentry-program /usr/bin/pinentry-gtk-2
+#pinentry-program /usr/bin/pinentry-x11
+#pinentry-program /usr/bin/pinentry-qt
+#pinentry-program /usr/local/bin/pinentry-curses
+pinentry-program /usr/local/bin/pinentry-mac
 ```
 
 - Add the following to `~/.zshrc`.
@@ -497,7 +523,7 @@ ssh-add -L | grep "cardno" > ~/.ssh/id_ed25519_yubikey.pub
 
 ```sh
 ssh -p 10022 ota@pi3.local
-emacs .ssh/authorized_keys
+emacs ~/.ssh/authorized_keys
 # add the content of id_ed25519_yubikey.pub
 exit
 ```
