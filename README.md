@@ -453,14 +453,17 @@ gpg -d test.txt.asc
 gpg -d test.txt.asc
 ```
 
+- If you confirmed the keys are stored in the YubiKey, you can delete the temporary workspace on local machine.
 
 ```sh
+cd ..
 sudo umount workspace
 ```
 
 ## SSH
 
-- https://github.com/drduh/YubiKey-Guide#ssh
+- Follow the instructions in the following link.
+  - https://github.com/drduh/YubiKey-Guide#ssh
 - Create `gpg-agent.conf`.
 
 ```sh
