@@ -4,8 +4,11 @@ This document describes how to set up a YubiKey.
 
 - Generate gpg keys
 - Backup the keys
-- Use gpg for SSH
-- Use gpg for signing GitHub commits
+- Use YubiKey for SSH
+- Use YubiKey for signing GitHub commits
+- Use YubiKey for 2 Factor Authentication (2FA) on (e.g. Google, Amazon, Twitter, etc.) (WIP)
+- Use YubiKey for Passkey Authentication (Yahoo! JAPAN) (WIP)
+- Use YubiKey for Nostr (WIP)
 
 ## References
 
