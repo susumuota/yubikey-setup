@@ -44,8 +44,10 @@ Admin PIN:   12345678
 - `gpg` default procedure will generate a master key for S and C, and a subkey for E.
 - We will create a subkey for A later.
 
+> **Note**: Email address must be set to the same email address as your GitHub account. Otherwise, you cannot sign commits with GPG. In my case, `1632335+susumuota@users.noreply.github.com`.
+
 ```sh
-LANG=C  gpg --expert --full-gen-key
+gpg --expert --full-gen-key
 
 Please select what kind of key you want:
    (1) RSA and RSA
@@ -86,10 +88,10 @@ Is this correct? (y/N) y
 GnuPG needs to construct a user ID to identify your key.
 
 Real name: Susumu OTA
-Email address: ota@example.com
+Email address: 1632335+susumuota@users.noreply.github.com
 Comment:
 You selected this USER-ID:
-    "Susumu OTA <ota@example.com>"
+    "Susumu OTA <1632335+susumuota@users.noreply.github.com>"
 
 Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? o
 
@@ -102,10 +104,11 @@ sub   cv25519 2023-03-17 [E]
 ```
 
 - Now, we have a master key for S and C with Curve 25519 and a subkey for E with Curve 25519.
-- Save the key fingerprint.
+- Save the key ID. e.g. `3AA5C34371567BD2`.
 
 ```sh
-export KEYFP="KEY_FINGERPRINT_HERE"
+gpg --list-secret-keys --keyid-format=long
+export GPG_KEY_ID="3AA5C34371567BD2"  # replace with your key ID
 ```
 
 ## Add subkeys for A
@@ -114,7 +117,7 @@ export KEYFP="KEY_FINGERPRINT_HERE"
 - We need to add a subkey for A.
 
 ```sh
-LANG=C  gpg --expert --edit-key $KEYFP
+gpg --expert --edit-key $GPG_KEY_ID
 
 # add a subkey for A
 
@@ -189,7 +192,7 @@ gpg> save
 - Confirm the keys
 
 ```sh
-LANG=C  gpg -k
+gpg -k
 -----------------------------
 pub   ed25519 2023-03-17 [SC]
       KEY_FINGERPRINT_HERE
@@ -203,7 +206,7 @@ sub   ed25519 2023-03-17 [A]
 ```sh
 brew install hopenpgp-tools
 rehash
-gpg --export $KEYFP | hokey lint
+gpg --export $GPG_KEY_ID | hokey lint
 ```
 
 ## Change expiration time for the subkeys
@@ -211,7 +214,7 @@ gpg --export $KEYFP | hokey lint
 - Set the expiration time for the subkeys to 1 year. Renew them every year.
 
 ```sh
-LANG=C  gpg --expert --edit-key $KEYFP
+gpg --expert --edit-key $GPG_KEY_ID
 
 gpg> key 1  # select E key
 gpg> expire
@@ -250,7 +253,7 @@ gpg> save
 - Confirm the keys
 
 ```sh
-LANG=C  gpg -k
+gpg -k
 -----------------------------
 pub   ed25519 2023-03-17 [SC]
       KEY_FINGERPRINT_HERE
@@ -277,9 +280,9 @@ cd workspace
 - Export the keys.
 
 ```sh
-gpg --armor --export-secret-keys $KEYFP > gpg_secret_keys.asc
-gpg --armor --export-secret-subkeys $KEYFP > gpg_secret_subkeys.asc
-gpg --armor --export $KEYFP > gpg_public_keys.asc
+gpg --armor --export-secret-keys $GPG_KEY_ID > gpg_secret_keys.asc
+gpg --armor --export-secret-subkeys $GPG_KEY_ID > gpg_secret_subkeys.asc
+gpg --armor --export $GPG_KEY_ID > gpg_public_keys.asc
 ```
 
 - Confirm the exported keys whether they can be imported.
@@ -294,7 +297,7 @@ gpg -k
 - Create the revocation certificate
 
 ```sh
-LANG=C  gpg --output gpg_revoke.asc --gen-revoke $KEYFP
+gpg --output gpg_revoke.asc --gen-revoke $GPG_KEY_ID
 
 Create a revocation certificate for this key? (y/N) y
 Please select the reason for the revocation:
@@ -330,7 +333,7 @@ cp -p gpg_* /Volumes/GPGBAK2/20230317-02
 - https://github.com/drduh/YubiKey-Guide#configure-smartcard
 
 ```sh
-LANG=C  gpg --card-edit
+gpg --card-edit
 gpg/card> admin
 ```
 
@@ -356,7 +359,7 @@ gpg/card> quit  # needs to quit to save PIN
 ## Set name, etc.
 
 ```sh
-LANG=C  gpg --card-edit
+gpg --card-edit
 gpg/card> admin
 gpg/card> name
 gpg/card> salutation
@@ -368,7 +371,7 @@ gpg/card> quit
 ```
 
 ```sh
-LANG=C  gpg --edit-key $KEYFP
+gpg --edit-key $GPG_KEY_ID
 
 gpg> keytocard
 Really move the primary key? (y/N) y
@@ -400,7 +403,7 @@ gpg> save
 - Confirm the keys
 
 ```sh
-LANG=C  gpg --card-edit
+gpg --card-edit
 
 # confirm these lines
 
@@ -472,7 +475,7 @@ gpgconf --launch gpg-agent
 ssh-add -L | grep "cardno" > ~/.ssh/id_ed25519_yubikey.pub
 ```
 
-- Add the public key to the server.
+- Add the public key to the server's `~/.ssh/authroized_keys`.
 
 ```sh
 ssh -p 10022 ota@pi3.local
@@ -521,7 +524,7 @@ cp -p ~/.gitconfig ~/.gitconfig.bak
   - https://docs.github.com/en/authentication/managing-commit-signature-verification/adding-a-gpg-key-to-your-github-account
 
 ```sh
-gpg --armor --export $KEYFP
+gpg --armor --export $GPG_KEY_ID
 ```
 
 - Telling Git about your signing key
@@ -535,9 +538,22 @@ cat ~/.gitconfig
 - Copy the long form of the GPG key ID. e.g. `3AA5C34371567BD2`
 
 ```sh
-gpg --list-secret-keys --keyid-format=long  # copy key ID
-export KEYID="3AA5C34371567BD2"
-git config --global user.signingkey $KEYID
-git config --global commit.gpgsign true
+gpg --list-secret-keys --keyid-format=long  # copy your key ID
+export GPG_KEY_ID="3AA5C34371567BD2"        # replace with your key ID
+git config --global user.signingkey $GPG_KEY_ID
+git config --global commit.gpgsign true     # add this to omit -S option
 cat ~/.gitconfig
+diff -u ~/.gitconfig.bak ~/.gitconfig
 ```
+
+- Commit and push something.
+
+```sh
+git add README.md
+git commit -m "test"  # or git commit -S -m "test" if you didn't set commit.gpgsign true
+git push origin main
+```
+
+- See the commit log on GitHub. You will see green `Verified` badge and click it to confirm `GPG key ID` is same as `$GPG_KEY_ID`.
+
+- You can also try to unplug and plug the YubiKey to test `pinentry`.
