@@ -626,10 +626,12 @@ gpg -d recovery.txt.asc                         # verify and decrypt
 ## Time-based one-time password (TOTP)
 
 - TOTP (2FA using authenticator apps like `Google Authenticator`) stores the secret key, so that you need to back up it.
-- You can download an app [Yubico Authenticator](https://www.yubico.com/products/yubico-authenticator/), and it can  store 32 secret keys on the device.
-- When you see QR code on the service provider's website, you can scan it with the app.
+- You can download an app [Yubico Authenticator](https://www.yubico.com/products/yubico-authenticator/), and it can  store 32 secret keys on the YubiKey.
+- When you see QR code on the service provider's website, you can scan it by Yubico Authenticator app.
 - Also, you can scan QR code by Google Authenticator, Authy or any other TOTP app for backup purpose.
 - At the same time, **there MUST be an option to show the SECRET KEY instead of QR code**. e.g. you will find a link like `Click here if you can't scan the QR code`.
+- I recommend to save the secret key manually.
+- You can input the secret key manually on Yubico Authenticator app or `ykman` command (see below).
 - The secret key is different from recovery code or backup code which are service provider specific.
 - If you save the secret key, you can change TOTP apps or mobile devices anytime.
 - If you save the secret key, you can completely restore the 2FA apps without recovery code or backup code.
