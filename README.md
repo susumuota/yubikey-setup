@@ -625,15 +625,15 @@ gpg -d recovery.txt.asc                         # verify and decrypt
 
 ## Time-based one-time password (TOTP)
 
-- TOTP (2FA using authenticator apps like `Google Authenticator` on Google Twitter, etc.) stores the secret key on the YubiKey.
-- You can download an app [Yubico Authenticator](https://www.yubico.com/products/yubico-authenticator/), and store 32 accounts on YubiKey.
+- TOTP (2FA using authenticator apps like `Google Authenticator`) stores the secret key, so that you need to back up it.
+- You can download an app [Yubico Authenticator](https://www.yubico.com/products/yubico-authenticator/), and it can  store 32 secret keys on the device.
 - When you see QR code on the service provider's website, you can scan it with the app.
-- Also, you can scan QR code with Google Authenticator or Authy or any other TOTP app for backup purpose.
-- At the same time, **there MUST be an option to show the SECRET KEY instead of QR code**. e.g. `Click here if you can't scan the QR code`.
+- Also, you can scan QR code by Google Authenticator, Authy or any other TOTP app for backup purpose.
+- At the same time, **there MUST be an option to show the SECRET KEY instead of QR code**. e.g. you will find a link like `Click here if you can't scan the QR code`.
 - The secret key is different from recovery code or backup code which are service provider specific.
-- If you save the secret key, you can change 2FA apps or devices anytime.
-- If you have the secret key, you can completely restore the account without recovery code or backup code.
-- You should encrypt the secret key, recovery code or backup code using `gpg` and save it to the safe place (e.g. USB drive or SD card).
+- If you save the secret key, you can change TOTP apps or mobile devices anytime.
+- If you save the secret key, you can completely restore the 2FA apps without recovery code or backup code.
+- You should encrypt the secret key, recovery code and backup code using `gpg` and save them to the safe place (e.g. USB drive or SD card).
 
 ```sh
 gpg -sea --default-recipient-self secret_key.txt  # encrypt and sign
