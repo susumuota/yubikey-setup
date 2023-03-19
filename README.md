@@ -5,7 +5,7 @@ This document describes how to set up a YubiKey.
 - [Generate gpg keys](#generate-gpg-keys)
 - [Backup gpg keys](#backup-gpg-keys)
 - [SSH public key authentication](#ssh-public-key-authentication)
-- [GitHub Signing commits](#github-signing-commits)
+- [GitHub signing commits](#github-signing-commits)
 - [Two-factor authentication (2FA)](#two-factor-authentication-2fa) (for Google, Amazon, Twitter, etc. accounts)
   - [FIDO U2F (Universal 2nd Factor)](#fido-u2f-universal-2nd-factor)  (so called 2FA using `Security Key`)
   - [Time-based one-time password (TOTP)](#time-based-one-time-password-totp)  (2FA using authenticator apps like Google Authenticator, Authy, etc.)
@@ -20,10 +20,13 @@ This document describes how to set up a YubiKey.
 - https://keens.github.io/blog/2021/03/23/yubikeywotsukau_openpghen/
 - https://qiita.com/shun-shobon/items/96f08aa09a30c26a55b5
 
-## Buy a YubiKey.
+## Buy a YubiKey
 
-- YubiKey 5+ Series which supports OpenPGP.
+- YubiKey 5 Series which supports OpenPGP.
+  - I bought a YubiKey 5 NFC.
 - USB drive or SD card for key backup.
+
+> **Note**: In my opinion, you don't need to buy 2 YubiKeys if you back up your keys carefully. If you lose a YubiKey, you can restore your keys from the backup. Also, it might be better to revoke the old keys and generate new ones from scratch, as lost keys could be used for malicious purposes.
 
 ## Install
 
@@ -555,7 +558,7 @@ emacs ~/.ssh/known_hosts
 ssh -p 10022 ota@pi3.local -vvv
 ```
 
-# GitHub Signing commits
+# GitHub signing commits
 
 - Follow these instructions.
   - https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification
