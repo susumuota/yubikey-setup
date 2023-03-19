@@ -2,13 +2,15 @@
 
 This document describes how to set up a YubiKey.
 
-- Generate gpg keys
-- Backup the keys
-- Use YubiKey for SSH
-- Use YubiKey for signing GitHub commits
-- Use YubiKey for two factor authentication (2FA) (e.g. Google, Amazon, Twitter, etc.) (WIP)
-- Use YubiKey for Passkey authentication (WIP)
-- Use YubiKey for Nostr (WIP)
+- [Generate gpg keys](#generate-gpg-keys)
+- [Backup gpg keys](#backup-gpg-keys)
+- [SSH public key authentication](#ssh-public-key-authentication)
+- [GitHub Signing commits](#github-signing-commits)
+- [Two-factor authentication (2FA)](#two-factor-authentication-2fa) (for Google, Amazon, Twitter, etc. accounts)
+  - [FIDO U2F (Universal 2nd Factor)](#fido-u2f-universal-2nd-factor)  (so called 2FA using `Security Key`)
+  - [Time-based one-time password (TOTP)](#time-based-one-time-password-totp)  (2FA using authenticator apps like Google Authenticator, Authy, etc.)
+- Passkey authentication (WIP)
+- Nostr private key (WIP)
 
 ## References
 
@@ -49,6 +51,8 @@ PIN:         123456
 Reset code:  NOT SET
 Admin PIN:   12345678
 ```
+
+# Generate gpg keys
 
 ## Generate a master key and subkeys
 
@@ -277,7 +281,7 @@ sub   cv25519 2023-03-17 [E] [expires: 2024-03-16]
 sub   ed25519 2023-03-17 [A] [expires: 2024-03-16]
 ```
 
-## Backup keys
+# Backup gpg keys
 
 - Follow these instructions to export your secret keys.
   - https://github.com/drduh/YubiKey-Guide#export-secret-keys
@@ -471,7 +475,7 @@ cd ..
 sudo umount workspace
 ```
 
-## SSH
+# SSH public key authentication
 
 - Follow the instructions in the following link.
   - https://github.com/drduh/YubiKey-Guide#ssh
@@ -551,7 +555,7 @@ emacs ~/.ssh/known_hosts
 ssh -p 10022 ota@pi3.local -vvv
 ```
 
-## GitHub
+# GitHub Signing commits
 
 - Follow these instructions.
   - https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification
@@ -601,13 +605,66 @@ git push origin main
 - You can also try to unplug and plug the YubiKey to test `pinentry`.
   - You will see `pinentry` dialog when `git commit` and `git push`.
 
+# Two-factor authentication (2FA)
+
+## FIDO U2F (Universal 2nd Factor)
+
+- FIDO U2F (2FA using `Security Key` on Google, Twitter etc.) does not store any credential information on YubiKey. Just use a device-specific key which was generated on-chip at the time of manufacturing.
+  - https://redd.it/10onj2k
+  - https://www.yubico.com/blog/yubicos-u2f-key-wrapping/
+- You don't need to manage or back up anything on your YubiKey. Simply store safely the recovery code given by the service provider.
+- You should encrypt the recovery code using `gpg` and copy it to the safe place (e.g. USB drive or SD card).
+
+```sh
+gpg -sea --default-recipient-self recovery.txt  # encrypt and sign
+gpg -d recovery.txt.asc                         # verify and decrypt
+```
+
+## Time-based one-time password (TOTP)
+
+- TOTP (2FA using authenticator apps like `Google Authenticator` on Google Twitter, etc.) stores the secret key on the YubiKey.
+- You can download an app [Yubico Authenticator](https://www.yubico.com/products/yubico-authenticator/), and store 32 accounts on YubiKey.
+- When you see QR code on the service provider's website, you can scan it with the app.
+- Also, you can scan QR code with Google Authenticator or Authy or any other TOTP app for backup purpose.
+- At the same time, **there MUST be an option to show the SECRET KEY instead of QR code**. e.g. `Click here if you can't scan the QR code`.
+- The secret key is different from recovery code or backup code which are service provider specific.
+- If you save the secret key, you can change 2FA apps or devices anytime.
+- If you have the secret key, you can completely restore the account without recovery code or backup code.
+- You should encrypt the secret key, recovery code or backup code using `gpg` and save it to the safe place (e.g. USB drive or SD card).
+
+```sh
+gpg -sea --default-recipient-self secret_key.txt  # encrypt and sign
+gpg -d secret_key.txt.asc                         # verify and decrypt
+```
+
+- You can add the secret key manually by `ykman oath accounts add`.
+- Also, you can see the account list by `ykman oath accounts list`.
+
+```sh
+ykman oath accounts list
+# Amazon:foo@example.com
+# Google:foo@example.com
+# Twitter:foo
+# Twitter:bar
+```
+
+- And generate codes by `ykman oath accounts code`.
+
+```sh
+ykman oath accounts code
+# Amazon:foo@example.com  111111
+# Google:foo@example.com  222222
+# Twitter:foo             333333
+# Twitter:bar             444444
+```
+
 That's all.
 
-## License
+# License
 
 MIT
 
-## Author
+# Author
 
 S. Ota
 
