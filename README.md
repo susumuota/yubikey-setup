@@ -1,5 +1,10 @@
 # YubiKey setup memo
 
+EN |
+[JA](https://github-com.translate.goog/susumuota/yubikey-setup/blob/main/README.md?_x_tr_sl=en&_x_tr_tl=ja&_x_tr_hl=ja&_x_tr_pto=wapp) |
+[ES](https://github-com.translate.goog/susumuota/yubikey-setup/blob/main/README.md?_x_tr_sl=en&_x_tr_tl=es&_x_tr_hl=es&_x_tr_pto=wapp) |
+[ZH](https://github-com.translate.goog/susumuota/yubikey-setup/blob/main/README.md?_x_tr_sl=en&_x_tr_tl=zh-CN&_x_tr_hl=zh-CN&_x_tr_pto=wapp)
+
 This document describes how to set up a YubiKey.
 
 - [Generate gpg keys](#generate-gpg-keys)
